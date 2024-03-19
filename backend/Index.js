@@ -1,10 +1,10 @@
-const express=require('express');
+const {express,dotenv,config}=require("./config/Constant")
+// const express=require('express');
 const bodyParser=require('body-parser');
 const route= require("./routes/Route");
 const app = express();
-const dotenv =require('dotenv') ;
-dotenv.config();
-
+// const dotenv =require('dotenv') ;
+// dotenv.config();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true}));

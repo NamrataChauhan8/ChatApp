@@ -1,10 +1,10 @@
-const user = require("../model/User");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
-const dotenv =require('dotenv') ;
-dotenv.config();
-const secretKey=process.env.SECRET_KEY;
-
+// const user = require("../model/User");
+// const bcrypt = require("bcrypt");
+// const jwt = require("jsonwebtoken");
+// const dotenv =require('dotenv') ;
+// dotenv.config();
+// const secretKey=process.env.SECRET_KEY;
+const {user,jwt,dotenv,config,secretKey}=require("../config/Constant");
 
 const signup = async (req, res) => {
   try {

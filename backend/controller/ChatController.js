@@ -1,5 +1,7 @@
-const messages = require("../model/message");
-const user = require("../model/User");
+// const messages = require("../model/message");
+// const user = require("../model/User");
+const {user,messages}=require("../config/Constant")
+
 
 const sendMessage = async (req, res) => {
   try {

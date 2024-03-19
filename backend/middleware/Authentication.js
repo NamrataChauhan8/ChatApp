@@ -1,5 +1,7 @@
-const jwt = require("jsonwebtoken");
-const user = require("../model/User");
+// const jwt = require("jsonwebtoken");
+// const user = require("../model/User");
+// const secretKey=process.env.SECRET_KEY;
+const {jwt,user,secretKey}=require("../config/Constant")
 
 const authentication = async(req, res, next) => {
   const token = req.header("Authorization");
@@ -9,7 +11,7 @@ const authentication = async(req, res, next) => {
   }
 
   try {
-    const decoded = jwt.verify(token.split(" ")[1], "thisIsSecretKey");
+    const decoded = jwt.verify(token.split(" ")[1], secretKey);
 
     const decodedUser = await user.findOne({_id: decoded.id});
     
