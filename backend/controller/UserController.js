@@ -1,6 +1,10 @@
 const user = require("../model/User");
 const bcrypt = require("bcrypt");
-const jwt = require('jsonwebtoken');
+const jwt = require("jsonwebtoken");
+const dotenv =require('dotenv') ;
+dotenv.config();
+const secretKey=process.env.SECRET_KEY;
+
 
 const signup = async (req, res) => {
   try {
@@ -22,40 +26,16 @@ const signup = async (req, res) => {
   }
 };
 
-// const login = async (req, res) => {
-//   try {
-//     const { email, password } = req.body;
-//     const userExist = await user.findOne({ email });
-
-//     if (!userExist) {
-//       return res.status(400).json({ Message: "Email not found" });
-//     } else {
-//       const isMatch = await bcrypt.compare(password, userExist.password);
-//       if (!isMatch) {
-//         return res.status(401).json({ message: "password is invalid" });
-//       } else {
-//         res.status(200).json({ msg: "Login successful" });
-//       }
-//     }
-//   } catch (error) {
-//     console.error(error.message);
-//     res.status(500).json({ error: "Unable to login please try again!!!" });
-//   }
-// };
-
-// generateToken.js
 
 const generateToken = (userId) => {
-  return jwt.sign({ user: { id: userId } }, "thisIsSecretKey", { expiresIn: '1h' });
+  return jwt.sign({ id: userId }, secretKey, { expiresIn: "1h" });
 };
-
 
 
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const userExist = await user.findOne({ email });
-
     if (!userExist) {
       return res.status(400).json({ Message: "Email not found" });
     } else {
@@ -63,11 +43,10 @@ const login = async (req, res) => {
       if (!isMatch) {
         return res.status(401).json({ message: "Password is invalid" });
       } else {
-        const token = generateToken(user._id);
+        const token = generateToken(userExist._id);
 
-        res.header('Authorization', `Bearer ${token}`);
-          res.status(200).json({ msg: "Login successful" });
-        
+        res.header("Authorization", `Bearer ${token}`);
+        res.status(200).json({ msg: "Login successful" });
       }
     }
   } catch (error) {
@@ -75,9 +54,5 @@ const login = async (req, res) => {
     res.status(500).json({ error: "Unable to login, please try again!!!" });
   }
 };
-
-
-
-
 
 module.exports = { signup: signup, login: login };

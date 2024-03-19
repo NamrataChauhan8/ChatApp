@@ -1,6 +1,7 @@
 const jwt = require("jsonwebtoken");
+const user = require("../model/User");
 
-const authentication = (req, res, next) => {
+const authentication = async(req, res, next) => {
   const token = req.header("Authorization");
 
   if (!token) {
@@ -10,8 +11,10 @@ const authentication = (req, res, next) => {
   try {
     const decoded = jwt.verify(token.split(" ")[1], "thisIsSecretKey");
 
-    req.user = decoded.user;
+    const decodedUser = await user.findOne({_id: decoded.id});
+    
 
+    req.user = decodedUser;
     next();
   } catch (err) {
     return res.status(401).json({ message: "Invalid token" });

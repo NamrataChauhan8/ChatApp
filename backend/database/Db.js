@@ -1,6 +1,6 @@
-const mongoose = require('mongoose');
+const {mongoose,dbConnectionString} = require("../config/Constant");
 
-mongoose.connect('mongodb+srv://namratac:Namrata@cluster0.nte2w9a.mongodb.net/ChatApp');
+mongoose.connect(dbConnectionString);
 
 const database= mongoose.connection;
 
