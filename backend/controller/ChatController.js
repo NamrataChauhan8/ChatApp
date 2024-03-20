@@ -1,4 +1,4 @@
-const {user,messages}=require("../config/Constant");
+const { user, messages } = require("../config/Constant");
 
 const sendMessage = async (req, res) => {
   try {
@@ -12,19 +12,17 @@ const sendMessage = async (req, res) => {
 
       if (!receiver) {
         return res.status(400).json({ message: "receiver not found" });
-      }else{
+      } else {
         const newMessage = new messages({
           message,
           senderEmail,
           receiverEmail,
         });
-  
+
         const savedMessage = await newMessage.save();
-  
+
         return res.status(201).json({ savedMessage });
       }
-
-      
     }
   } catch (error) {
     console.error("Error occurred while sending message", error);
@@ -33,7 +31,6 @@ const sendMessage = async (req, res) => {
       .json({ error: "Error occurred while sending message" });
   }
 };
-
 
 const getMessage = async (req, res) => {
   try {
@@ -56,8 +53,6 @@ const getMessage = async (req, res) => {
   }
 };
 
-
-
 const deleteMessage = async (req, res) => {
   try {
     const userEmail = req.user.email;
@@ -67,23 +62,25 @@ const deleteMessage = async (req, res) => {
 
     if (!existingMessage) {
       return res.status(404).json({ message: "Message not found" });
-    }
-
-    if (existingMessage.senderEmail !== userEmail) {
-      return res
-        .status(403)
-        .json({ message: "Unauthorized to delete this message" });
     } else {
-      await messages.deleteOne({ _id: messageId });
-      return res.status(200).json({ message: "Message deleted successfully" });
+      if (existingMessage.senderEmail !== userEmail) {
+        return res
+          .status(403)
+          .json({ message: "Unauthorized to delete this message" });
+      } else {
+        await messages.deleteOne({ _id: messageId });
+        return res
+          .status(200)
+          .json({ message: "Message deleted successfully" });
+      }
     }
   } catch (error) {
     console.error("Error occurred while deleting message", error);
-    res.status(500).json({ error: "Error occurred while deleting message" });
+    return res
+      .status(500)
+      .json({ error: "Error occurred while deleting message" });
   }
 };
-
-
 
 const updateMessage = async (req, res) => {
   try {
@@ -100,18 +97,19 @@ const updateMessage = async (req, res) => {
       return res
         .status(403)
         .json({ message: "Unauthorized to update this message" });
+    } else {
+      existingMessage.message = req.body.message;
+      await existingMessage.save();
+
+      return res.status(200).json({ message: "Message updated successfully" });
     }
-
-    existingMessage.message = req.body.message;
-    await existingMessage.save();
-
-    return res.status(200).json({ message: "Message updated successfully" });
   } catch (error) {
     console.error("Error occurred while updating message", error);
-    res.status(500).json({ error: "Error occurred while updating message" });
+    return res
+      .status(500)
+      .json({ error: "Error occurred while updating message" });
   }
 };
-
 
 module.exports = {
   sendMessage: sendMessage,
