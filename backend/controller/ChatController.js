@@ -4,7 +4,6 @@ const sendMessage = async (req, res) => {
   try {
     const { message, senderEmail, receiverEmail } = req.body;
     const userEmail = req.user.email;
-    console.log(userEmail);
     if (userEmail !== req.body.senderEmail) {
       return res.status(400).json({ message: "Unauthorized user" });
     } else {
