@@ -2,20 +2,20 @@ const { user, messages } = require("../config/Constant");
 
 const sendMessage = async (req, res) => {
   try {
-    const { message, senderEmail, receiverEmail } = req.body;
-    const userEmail = req.user.email;
-    if (userEmail !== req.body.senderEmail) {
+    const { message, senderId, receiverId } = req.body;
+    const userId = req.user.id;
+    if (userId !== req.body.senderId) {
       return res.status(400).json({ message: "Unauthorized user" });
     } else {
-      const receiver = await user.findOne({ email: receiverEmail });
+      const receiver = await user.findOne({ _id: receiverId });
 
       if (!receiver) {
         return res.status(400).json({ message: "receiver not found" });
       } else {
         const newMessage = new messages({
           message,
-          senderEmail,
-          receiverEmail,
+          senderId,
+          receiverId,
         });
 
         const savedMessage = await newMessage.save();
@@ -33,14 +33,13 @@ const sendMessage = async (req, res) => {
 
 const getMessage = async (req, res) => {
   try {
-    const userEmail = req.user.email;
     const userId = req.user.id;
-    const email = req.params.email;
-    if (userEmail !== email) {
+    const id = req.params.id;
+    if (userId !== id) {
       return res.status(400).json({ message: "Unauthorized user" });
     } else {
       const msgs = await messages.find({
-        $or: [{ senderEmail: userEmail }, { receiverEmail: userEmail }],
+        $or: [{ senderId: userId }, { receiverId: userId }],
       });
       return res.status(200).json({ messages: msgs });
     }
@@ -54,7 +53,7 @@ const getMessage = async (req, res) => {
 
 const deleteMessage = async (req, res) => {
   try {
-    const userEmail = req.user.email;
+    const userId = req.user.id;
     const messageId = req.params.messageId;
 
     const existingMessage = await messages.findById(messageId);
@@ -62,7 +61,8 @@ const deleteMessage = async (req, res) => {
     if (!existingMessage) {
       return res.status(404).json({ message: "Message not found" });
     } else {
-      if (existingMessage.senderEmail !== userEmail) {
+
+      if (existingMessage.senderId.toString() !== userId) {
         return res
           .status(403)
           .json({ message: "Unauthorized to delete this message" });
@@ -83,7 +83,7 @@ const deleteMessage = async (req, res) => {
 
 const updateMessage = async (req, res) => {
   try {
-    const userEmail = req.user.email;
+    const userId = req.user.id;
     const messageId = req.params.messageId;
 
     const existingMessage = await messages.findById(messageId);
@@ -91,7 +91,7 @@ const updateMessage = async (req, res) => {
     if (!existingMessage) {
       return res.status(404).json({ message: "Message not found" });
     }else{
-      if (existingMessage.senderEmail !== userEmail) {
+      if (existingMessage.senderId.toString() !== userId) {
         return res
           .status(403)
           .json({ message: "Unauthorized to update this message" });
@@ -112,9 +112,48 @@ const updateMessage = async (req, res) => {
   }
 };
 
+
+const getChattedUsers = async (req, res) => {
+  try {
+    const userId = req.user._id; 
+    console.log(userId)
+
+    const chattedUsers = await messages.aggregate([
+      {
+        $match: {
+          $or: [{ senderId: userId }, { receiverId: userId }],
+        },
+      },
+      {
+        $group: {
+          _id: null,users: {
+            $addToSet: {
+              $cond: {
+                if: { $eq: ["$senderId", userId] },
+                then: "$receiverId",
+                else: "$senderId",
+               },
+            },
+          },
+        },
+      },
+    ]);
+
+    const userIds = chattedUsers.length > 0 ? chattedUsers[0].users : [];
+
+    res.status(200).json({ users: userIds });
+  } catch (error) {
+    console.error("Error occurred while fetching chatted users", error);
+    res.status(500).json({ error: "Error occurred while fetching chatted users" });
+  }
+};
+
+
+
 module.exports = {
   sendMessage: sendMessage,
   getMessage: getMessage,
   deleteMessage: deleteMessage,
   updateMessage: updateMessage,
+  getChattedUsers:getChattedUsers
 };
