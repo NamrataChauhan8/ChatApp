@@ -10,10 +10,9 @@ const authentication = async(req, res, next) => {
 
   try {
     const decoded = jwt.verify(token.split(" ")[1], secretKey);
-    console.log("decoded: ", decoded);
 
     const decodedUser = await user.findOne({_id: decoded.id});
-    console.log("decodedUser: ", decodedUser);
+    
     req.user = decodedUser;
     next();
   } catch (err) {

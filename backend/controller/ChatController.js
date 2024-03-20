@@ -1,10 +1,10 @@
-const {user,messages}=require("../config/Constant")
-
+const {user,messages}=require("../config/Constant");
 
 const sendMessage = async (req, res) => {
   try {
     const { message, senderEmail, receiverEmail } = req.body;
     const userEmail = req.user.email;
+    console.log(userEmail);
     if (userEmail !== req.body.senderEmail) {
       return res.status(400).json({ message: "Unauthorized user" });
     } else {
@@ -12,17 +12,19 @@ const sendMessage = async (req, res) => {
 
       if (!receiver) {
         return res.status(400).json({ message: "receiver not found" });
+      }else{
+        const newMessage = new messages({
+          message,
+          senderEmail,
+          receiverEmail,
+        });
+  
+        const savedMessage = await newMessage.save();
+  
+        return res.status(201).json({ savedMessage });
       }
 
-      const newMessage = new messages({
-        message,
-        senderEmail,
-        receiverEmail,
-      });
-
-      const savedMessage = await newMessage.save();
-
-      return res.status(201).json({ savedMessage });
+      
     }
   } catch (error) {
     console.error("Error occurred while sending message", error);
