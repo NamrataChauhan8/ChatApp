@@ -1,5 +1,3 @@
-// const messages = require("../model/message");
-// const user = require("../model/User");
 const {user,messages}=require("../config/Constant")
 
 

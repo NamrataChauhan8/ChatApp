@@ -1,4 +1,3 @@
-// const express = require("express");
 const {express}=require("../config/Constant")
 const router = express.Router();
 const { sendMessage, getMessage, deleteMessage, updateMessage } = require('../controller/ChatController'); 

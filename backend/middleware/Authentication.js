@@ -1,10 +1,8 @@
-// const jwt = require("jsonwebtoken");
-// const user = require("../model/User");
-// const secretKey=process.env.SECRET_KEY;
-const {jwt,user,secretKey}=require("../config/Constant")
+const {jwt,user,secretKey}=require("../config/Constant");
 
 const authentication = async(req, res, next) => {
   const token = req.header("Authorization");
+
 
   if (!token) {
     return res.status(401).json({ message: "Unauthorized" });
@@ -12,10 +10,10 @@ const authentication = async(req, res, next) => {
 
   try {
     const decoded = jwt.verify(token.split(" ")[1], secretKey);
+    console.log("decoded: ", decoded);
 
     const decodedUser = await user.findOne({_id: decoded.id});
-    
-
+    console.log("decodedUser: ", decodedUser);
     req.user = decodedUser;
     next();
   } catch (err) {
