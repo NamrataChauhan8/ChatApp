@@ -91,18 +91,20 @@ const updateMessage = async (req, res) => {
 
     if (!existingMessage) {
       return res.status(404).json({ message: "Message not found" });
+    }else{
+      if (existingMessage.senderEmail !== userEmail) {
+        return res
+          .status(403)
+          .json({ message: "Unauthorized to update this message" });
+      } else {
+        existingMessage.message = req.body.message;
+        await existingMessage.save();
+  
+        return res.status(200).json({ message: "Message updated successfully" });
+      }
     }
 
-    if (existingMessage.senderEmail !== userEmail) {
-      return res
-        .status(403)
-        .json({ message: "Unauthorized to update this message" });
-    } else {
-      existingMessage.message = req.body.message;
-      await existingMessage.save();
-
-      return res.status(200).json({ message: "Message updated successfully" });
-    }
+    
   } catch (error) {
     console.error("Error occurred while updating message", error);
     return res
