@@ -115,7 +115,10 @@ const updateMessage = async (req, res) => {
 
 const getChattedUsers = async (req, res) => {
   try {
-    const userId = req.user._id; 
+    if (!req.user || !req.user._id) {
+      return res.status(400).json({ error: "User ID is missing or invalid" });
+    }else{
+      const userId = req.user._id;
 
     const chattedUsers = await messages.aggregate([
       {
@@ -125,13 +128,14 @@ const getChattedUsers = async (req, res) => {
       },
       {
         $group: {
-          _id: null,users: {
+          _id: null,
+          users: {
             $addToSet: {
               $cond: {
                 if: { $eq: ["$senderId", userId] },
                 then: "$receiverId",
                 else: "$senderId",
-               },
+              },
             },
           },
         },
@@ -140,12 +144,17 @@ const getChattedUsers = async (req, res) => {
 
     const userIds = chattedUsers.length > 0 ? chattedUsers[0].users : "No messages from anyone";
 
-    res.status(200).json({ users: userIds });
+    return res.status(200).json({ users: userIds });
+
+    }
+
+    
   } catch (error) {
     console.error("Error occurred while fetching chatted users", error);
-    res.status(500).json({ error: "Error occurred while fetching chatted users" });
+    return res.status(500).json({ error: "Error occurred while fetching chatted users" });
   }
 };
+
 
 
 
