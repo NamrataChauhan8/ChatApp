@@ -116,7 +116,6 @@ const updateMessage = async (req, res) => {
 const getChattedUsers = async (req, res) => {
   try {
     const userId = req.user._id; 
-    console.log(userId)
 
     const chattedUsers = await messages.aggregate([
       {
@@ -139,7 +138,7 @@ const getChattedUsers = async (req, res) => {
       },
     ]);
 
-    const userIds = chattedUsers.length > 0 ? chattedUsers[0].users : [];
+    const userIds = chattedUsers.length > 0 ? chattedUsers[0].users : "No messages from anyone";
 
     res.status(200).json({ users: userIds });
   } catch (error) {
